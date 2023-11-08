@@ -13,7 +13,7 @@ INSERT INTO
 	employee (first_name, last_name, salary, birth_date, work_position)
 VALUES
 	('Anna', 'Noakowska', 6500.50, '1997-02-21', 'Starsza księgowa'),
-	('Janina', 'Dokładna', 3500.90, '1988-11-05', 'Pracownik usług czystościowych'),
+	('Janina', 'Dokładna', 3500.90, '1993-11-09', 'Pracownik usług czystościowych'),
 	('Andrzej', 'Piorun', 7350.50, '1953-03-11', 'Elektryk'),
 	('Wiesław', 'Bogacki', 15500.00, '1974-08-01', 'Dyrektor'),
 	('Jan', 'Kowalski', 4830.30, '1974-08-01', 'Dozorca'),
@@ -27,19 +27,12 @@ SELECT * FROM employee ORDER BY last_name ASC;
 SELECT * FROM employee WHERE work_position = 'Elektryk';
 
 -- Pobiera pracowników, którzy mają co najmniej 30 lat
-SELECT * FROM employee WHERE year(current_date()) - year(birth_date) >= 30;
+SELECT * FROM employee WHERE timestampdiff(YEAR, birth_date, CURDATE()) >= 30;
 
 -- Zwiększa wypłatę pracowników na wybranym stanowisku o 10%
-CREATE TEMPORARY TABLE TempTable AS
-SELECT id FROM employee WHERE work_position = 'Elektryk';
-UPDATE 
-	employee
-SET 
-	salary = salary + (salary * 0.1)
-WHERE 
-	id IN (SELECT id FROM TempTable)
-;
-DROP TEMPORARY TABLE TempTable;
+SET SQL_SAFE_UPDATES = 0;
+UPDATE employee SET salary = salary * 1.1 WHERE id IN (SELECT id WHERE work_position = 'Elektryk');
+SET SQL_SAFE_UPDATES = 1;
 
 -- Pobiera najmłodszego pracowników (uwzględnij przypadek, że może być kilku urodzonych tego samego dnia)
 SELECT * FROM employee WHERE birth_date = (SELECT MAX(birth_date) FROM employee);
